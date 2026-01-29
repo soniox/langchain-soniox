@@ -7,6 +7,7 @@ Set the SONIOX_API_KEY environment variable to run these tests.
 If SONIOX_API_KEY is not set, all integration tests will be skipped.
 """
 
+import asyncio
 import os
 
 import httpx
@@ -244,3 +245,141 @@ def test_with_translation_config():
 
     assert doc.metadata["tokens"][0]["language"] is not None
     assert doc.metadata["tokens"][0]["translation_status"] == "original"
+
+
+def test_readme_examples():
+    # Using a URL
+    loader = SonioxDocumentLoader(
+        file_url="https://soniox.com/media/examples/coffee_shop.mp3"
+    )
+
+    docs = list(loader.lazy_load())
+    print(docs[0].page_content)
+    assert len(docs[0].page_content) > 0
+
+    # Async example
+    async def transcribe_async():
+        loader = SonioxDocumentLoader(
+            file_url="https://soniox.com/media/examples/coffee_shop.mp3"
+        )
+
+        docs = [doc async for doc in loader.alazy_load()]
+        print(docs[0].page_content)
+
+    asyncio.run(transcribe_async())
+
+    # Example with language hints
+    loader = SonioxDocumentLoader(
+        file_url="https://soniox.com/media/examples/coffee_shop.mp3",
+        options=SonioxTranscriptionOptions(
+            language_hints=["en", "es"],
+        ),
+    )
+
+    docs = list(loader.lazy_load())
+
+    # Example with speaker diarization
+    loader = SonioxDocumentLoader(
+        file_url="https://soniox.com/media/examples/coffee_shop.mp3",
+        options=SonioxTranscriptionOptions(
+            enable_speaker_diarization=True,
+        ),
+    )
+
+    docs = list(loader.lazy_load())
+
+    # Access speaker information in the metadata
+    current_speaker = None
+    output = ""
+    for token in docs[0].metadata["tokens"]:
+        if current_speaker != token["speaker"]:
+            current_speaker = token["speaker"]
+            output += f"\nSpeaker {current_speaker}: {token['text'].lstrip()}"
+        else:
+            output += token["text"]
+    print(output)
+
+    # Example with language identification
+    loader = SonioxDocumentLoader(
+        file_url="https://soniox.com/media/examples/coffee_shop.mp3",
+        options=SonioxTranscriptionOptions(
+            enable_language_identification=True,
+        ),
+    )
+
+    docs = list(loader.lazy_load())
+
+    # Access language information in the metadata
+    current_language = None
+    output = ""
+    for token in docs[0].metadata["tokens"]:
+        if current_language != token["language"]:
+            current_language = token["language"]
+            output += f"\n[{current_language}] {token['text'].lstrip()}"
+        else:
+            output += token["text"]
+    print(output)
+
+    # Example with structured context
+    loader = SonioxDocumentLoader(
+        file_url="https://soniox.com/media/examples/coffee_shop.mp3",
+        options=SonioxTranscriptionOptions(
+            context=StructuredContext(
+                # Structured key-value information (domain, topic, intent, etc.)
+                general=[
+                    StructuredContextGeneralItem(key="domain", value="Healthcare"),
+                    StructuredContextGeneralItem(
+                        key="topic", value="Diabetes management consultation"
+                    ),
+                    StructuredContextGeneralItem(
+                        key="doctor", value="Dr. Martha Smith"
+                    ),
+                ],
+                # Longer free-form background text or related documents
+                text="The patient has a history of...",
+                # Domain-specific or uncommon words
+                terms=["Celebrex", "Zyrtec", "Xanax"],
+                # Custom translations for ambiguous terms
+                translation_terms=[
+                    StructuredContextTranslationTerm(
+                        source="Mr. Smith", target="Sr. Smith"
+                    ),
+                    StructuredContextTranslationTerm(source="MRI", target="RM"),
+                ],
+            ),
+        ),
+    )
+
+    docs = list(loader.lazy_load())
+
+    print(docs[0].page_content)
+    assert len(docs[0].page_content) > 0
+
+    # Example with translation
+    loader = SonioxDocumentLoader(
+        file_url="https://soniox.com/media/examples/coffee_shop.mp3",
+        options=SonioxTranscriptionOptions(
+            translation=TranslationConfig(
+                type="one_way",
+                target_language="fr",
+            ),
+            language_hints=["en"],
+        ),
+    )
+
+    docs = list(loader.lazy_load())
+
+    original_text = ""
+    translated_text = ""
+
+    for token in docs[0].metadata["tokens"]:
+        if token["translation_status"] == "translation":
+            translated_text += token["text"]
+        else:
+            original_text += token["text"]
+
+    print(original_text)
+    print(translated_text)
+    assert original_text != ""
+    assert translated_text != ""
+    assert original_text != translated_text
