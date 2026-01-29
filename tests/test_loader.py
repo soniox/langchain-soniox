@@ -32,6 +32,7 @@ def test_multiple_inputs_provided():
         )
 
 
+@patch.dict("os.environ", {"SONIOX_API_KEY": ""})
 def test_missing_api_key():
     """Test that missing API key raises ValueError from get_from_env."""
     with pytest.raises(ValueError, match="Did not find api_key"):

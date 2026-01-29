@@ -17,8 +17,8 @@ from langchain_soniox import (
     SonioxTranscriptionOptions,
     StructuredContext,
     StructuredContextGeneralItem,
-    TranslationConfig,
     StructuredContextTranslationTerm,
+    TranslationConfig,
 )
 
 # Skip all tests in this file if no API key is available

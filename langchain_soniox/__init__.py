@@ -47,3 +47,5 @@ __all__ = [
     "StructuredContextTranslationTerm",
     "TranslationConfig",
 ]
+
+__version__ = "0.1.0"
