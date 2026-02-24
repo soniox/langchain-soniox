@@ -315,4 +315,4 @@ Learn more about the [Soniox API reference](https://soniox.com/docs/stt/api-refe
 ## Related
 
 - [Soniox API documentation](https://soniox.com/docs)
-- [LangChain documentation](https://python.langchain.com/docs/)
+- [LangChain documentation](https://docs.langchain.com/oss/python/integrations/document_loaders/soniox)
