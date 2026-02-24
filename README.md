@@ -226,14 +226,17 @@ loader = SonioxDocumentLoader(
 
 docs = list(loader.lazy_load())
 
+translated_text = ""
+original_text = ""
+
 for token in docs[0].metadata["tokens"]:
     if token["translation_status"] == "translation":
         translated_text += token["text"]
     else:
         original_text += token["text"]
 
-print(original_text)
-print(translated_text)
+print("Original text:", original_text)
+print("Translated text:", translated_text)
 ```
 
 You can also transcribe and translate between two languages simultaneously using `two_way` translation type. Learn more about translation [here](https://soniox.com/docs/stt/async/async-translation).

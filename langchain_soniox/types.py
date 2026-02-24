@@ -38,7 +38,7 @@ class SonioxTranscriptionOptions(BaseModel):
     https://soniox.com/docs/stt/api-reference/transcriptions/create_transcription
     """
 
-    model: str = "stt-async-v3"
+    model: str = "stt-async-v4"
     language_hints: Optional[List[str]] = None
     language_hints_strict: Optional[bool] = None
     enable_speaker_diarization: Optional[bool] = None
